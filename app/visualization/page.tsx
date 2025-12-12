@@ -10,8 +10,11 @@ import { apifetch } from "../api/apifetch";
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function VisualizationPage() {
+  // 상태 정보
   const [showModal, setShowModal] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  // 조회된 데이터
   const [weeklyMoodTrend, setWeeklyMoodTrend] = useState<any[]>([]);
   const [popularSnackBrands, setPopularSnackBrands] = useState<any[]>([]);
   const [weeklyWorkoutTrend, setWeeklyWorkoutTrend] = useState<any[]>([]);
@@ -22,10 +25,25 @@ export default function VisualizationPage() {
     departments: []
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const [moodColors, setMoodColors] = useState(["#008FFB", "#00E396", "#FEB019"]); // Happy / Tired / Stressed
-  const [snackColor, setSnackColor] = useState("#FF9800"); // Popular Snack Bar
+  // 색상 변경
+  const [moodColors, setMoodColors] = useState(["#008FFB", "#00E396", "#FEB019"]);
+  const [snackColor, setSnackColor] = useState("#FF9800");
+  const [donutColors, setDonutColors] = useState({
+    mood: ["#008FFB", "#FF4560", "#00E396"],
+    snacks: ["#775DD0", "#FEB019", "#FF66C3", "#26A69A", "#546E7A"],
+  });
+  const [stackedColors, setStackedColors] = useState({
+    mood: ["#008FFB", "#FF4560", "#00E396"],
+    workout: ["#775DD0", "#FEB019", "#FF66C3"],
+  });
+  const [areaColors, setAreaColors] = useState({
+    mood: ["#008FFB", "#FF4560", "#00E396"],
+    workout: ["#775DD0", "#FEB019", "#FF66C3"],
+  });
+  const [multilineColors, setMultilineColors] = useState({
+    coffee: ["#008FFB", "#FF4560", "#00E396", "#775DD0"],
+    snack: ["#008FFB", "#FF4560", "#00E396", "#775DD0"]
+  });
 
   const handleMoodColorChange = (index: number, newColor: string) => {
     const updated = [...moodColors];
@@ -266,6 +284,25 @@ export default function VisualizationPage() {
               <div className="col-12 col-lg-6">
                 {/* Weekly Mood Trend → 전체 감정 비율 */}
                 <h6 className="fw-bold mb-2">전체 감정 비율</h6>
+                <div className="d-flex gap-3 mb-2">
+                  {["Happy", "Tired", "Stressed"].map((label, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={donutColors.mood[idx]}
+                        onChange={(e) => {
+                          const newColors = [...donutColors.mood];
+                          newColors[idx] = e.target.value;
+                          setDonutColors({
+                            ...donutColors,
+                            mood: newColors,
+                          });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {label}</label>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ height: 300 }} className="mb-4 d-flex align-items-center justify-content-center border rounded">
                   {loading ? (
                     <span className="text-muted">로딩 중...</span>
@@ -280,7 +317,9 @@ export default function VisualizationPage() {
                       ]}
                       options={{
                         labels: ["Happy", "Tired", "Stressed"],
-                        chart: { toolbar: { show: false } }
+                        colors: donutColors.mood,
+                        chart: { toolbar: { show: false } },
+                        legend: { position: "bottom" },
                       }}
                     />
                   ) : (
@@ -293,6 +332,25 @@ export default function VisualizationPage() {
               <div className="col-12 col-lg-6">
                 {/* Popular Snack Brands → 브랜드 점유율 */}
                 <h6 className="fw-bold mb-2">간식 브랜드 점유율</h6>
+                <div className="d-flex flex-wrap gap-3 mb-2">
+                  {popularSnackBrands.map((brand, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={donutColors.snacks[idx]}
+                        onChange={(e) => {
+                          const newColors = [...donutColors.snacks];
+                          newColors[idx] = e.target.value;
+                          setDonutColors({
+                            ...donutColors,
+                            snacks: newColors,
+                          });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {brand.name}</label>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ height: 300 }} className="d-flex align-items-center justify-content-center border rounded">
                   {loading ? (
                     <span className="text-muted">로딩 중...</span>
@@ -303,7 +361,9 @@ export default function VisualizationPage() {
                       series={popularSnackBrands.map(b => b.share)}
                       options={{
                         labels: popularSnackBrands.map(b => b.name),
-                        chart: { toolbar: { show: false } }
+                        colors: donutColors.snacks,
+                        chart: { toolbar: { show: false } },
+                        legend: { position: "bottom" },
                       }}
                     />
                   ) : (
@@ -325,8 +385,23 @@ export default function VisualizationPage() {
             <div className="row g-4">
               {/* 왼쪽 차트 */}
               <div className="col-12 col-lg-6">
-                {/* Weekly Mood Trend Stack Chart */}
                 <h6 className="fw-bold mb-2">주간 무드 스택형 바 차트</h6>
+                <div className="d-flex gap-3 mb-2">
+                  {["Happy", "Tired", "Stressed"].map((label, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={stackedColors.mood[idx]}
+                        onChange={(e) => {
+                          const newArr = [...stackedColors.mood];
+                          newArr[idx] = e.target.value;
+                          setStackedColors({ ...stackedColors, mood: newArr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {label}</label>
+                    </div>
+                  ))}
+                </div>
                 <div
                   style={{ height: 350 }}
                   className="d-flex align-items-center justify-content-center border rounded"
@@ -347,6 +422,7 @@ export default function VisualizationPage() {
                           stacked: true,
                           toolbar: { show: false }
                         },
+                        colors: stackedColors.mood,
                         plotOptions: {
                           bar: {
                             horizontal: false,
@@ -378,8 +454,23 @@ export default function VisualizationPage() {
 
               {/* 오른쪽 차트 */}
               <div className="col-12 col-lg-6">
-                {/* Weekly Workout Trend Stack Chart */}
                 <h6 className="fw-bold mb-2">주간 운동량 스택형 바 차트</h6>
+                <div className="d-flex gap-3 mb-2">
+                  {["Running", "Cycling", "Stretching"].map((label, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={stackedColors.workout[idx]}
+                        onChange={(e) => {
+                          const newArr = [...stackedColors.workout];
+                          newArr[idx] = e.target.value;
+                          setStackedColors({ ...stackedColors, workout: newArr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {label}</label>
+                    </div>
+                  ))}
+                </div>
                 <div
                   style={{ height: 350 }}
                   className="d-flex align-items-center justify-content-center border rounded"
@@ -400,6 +491,7 @@ export default function VisualizationPage() {
                           stacked: true,
                           toolbar: { show: false }
                         },
+                        colors: stackedColors.workout,
                         plotOptions: {
                           bar: {
                             horizontal: false,
@@ -442,8 +534,23 @@ export default function VisualizationPage() {
             <div className="row g-4">
               {/* 왼쪽 차트 */}
               <div className="col-12 col-lg-6">
-                {/* Weekly Mood Trend Area Chart */}
                 <h6 className="fw-bold mb-2">주간 무드 면적 차트</h6>
+                <div className="d-flex gap-3 mb-2">
+                  {["Happy", "Tired", "Stressed"].map((label, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={areaColors.mood[idx]}
+                        onChange={(e) => {
+                          const newArr = [...areaColors.mood];
+                          newArr[idx] = e.target.value;
+                          setAreaColors({ ...areaColors, mood: newArr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {label}</label>
+                    </div>
+                  ))}
+                </div>
                 <div
                   style={{ height: 350 }}
                   className="d-flex align-items-center justify-content-center border rounded mb-4"
@@ -460,6 +567,7 @@ export default function VisualizationPage() {
                         { name: "Stressed", data: weeklyMoodTrend.map((d) => d.stressed) }
                       ]}
                       options={{
+                        colors: areaColors.mood,
                         chart: { toolbar: { show: false } },
                         dataLabels: { enabled: false },
                         stroke: { curve: "smooth" },
@@ -480,8 +588,23 @@ export default function VisualizationPage() {
 
               {/* 오른쪽 차트 */}
               <div className="col-12 col-lg-6">
-                {/* Weekly Workout Trend Area Chart */}
                 <h6 className="fw-bold mb-2">주간 운동량 면적 차트</h6>
+                <div className="d-flex gap-3 mb-2">
+                  {["Running", "Cycling", "Stretching"].map((label, idx) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={areaColors.workout[idx]}
+                        onChange={(e) => {
+                          const newArr = [...areaColors.workout];
+                          newArr[idx] = e.target.value;
+                          setAreaColors({ ...areaColors, workout: newArr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {label}</label>
+                    </div>
+                  ))}
+                </div>
                 <div
                   style={{ height: 350 }}
                   className="d-flex align-items-center justify-content-center border rounded"
@@ -498,6 +621,7 @@ export default function VisualizationPage() {
                         { name: "Stretching", data: weeklyWorkoutTrend.map((d) => d.stretching) }
                       ]}
                       options={{
+                        colors: areaColors.workout,
                         chart: { toolbar: { show: false } },
                         dataLabels: { enabled: false },
                         stroke: { curve: "smooth" },
@@ -524,16 +648,31 @@ export default function VisualizationPage() {
           <Modal.Header closeButton>
             <Modal.Title>멀티라인 차트</Modal.Title>
           </Modal.Header>
+
           <Modal.Body className="p-4">
-            {/* 가로 정렬 */}
             <div className="row g-4">
-              {/* 왼쪽 차트 */}
+
+              {/* 왼쪽 차트 - 커피 소비 팀 차트 */}
               <div className="col-12 col-lg-6">
                 <h6 className="fw-bold mb-2">팀별 커피 소비/버그/생산성 차트</h6>
-                <div
-                  style={{ height: 500 }}
-                  className="d-flex align-items-center justify-content-center border rounded mb-4"
-                >
+                <div className="d-flex flex-wrap gap-3 mb-2">
+                  {coffeeConsumption.teams.map((team: any, idx: number) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={multilineColors.coffee[idx]}
+                        onChange={(e) => {
+                          const arr = [...multilineColors.coffee];
+                          arr[idx] = e.target.value;
+                          setMultilineColors({ ...multilineColors, coffee: arr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {team.team}</label>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ height: 500 }} className="d-flex align-items-center justify-content-center border rounded mb-4">
                   {loading ? (
                     <span className="text-muted">로딩 중...</span>
                   ) : coffeeConsumption.teams.length > 0 ? (
@@ -541,27 +680,25 @@ export default function VisualizationPage() {
                       type="line"
                       height={480}
                       series={(() => {
-                        const colors = ["#008FFB", "#FF4560", "#00E396", "#775DD0"];
+                        const list: any[] = [];
 
-                        const seriesList: any[] = [];
+                        coffeeConsumption.teams.forEach((team: any, index: number) => {
+                          const color = multilineColors.coffee[index];
 
-                        coffeeConsumption.teams.forEach((teamObj: any, index: number) => {
-                          const color = colors[index % colors.length];
-
-                          seriesList.push(
+                          list.push(
                             {
-                              name: `${teamObj.team} - Bugs`,
+                              name: `${team.team} - Bugs`,
                               type: "line",
-                              data: teamObj.series.map((d: any) => d.bugs),
+                              data: team.series.map((d: any) => d.bugs),
                               color,
                               stroke: { width: 3, dashArray: 0 },
                               marker: { shape: "circle" },
                               yAxisIndex: 0
                             },
                             {
-                              name: `${teamObj.team} - Productivity`,
+                              name: `${team.team} - Productivity`,
                               type: "line",
-                              data: teamObj.series.map((d: any) => d.productivity),
+                              data: team.series.map((d: any) => d.productivity),
                               color,
                               stroke: { width: 3, dashArray: 6 },
                               marker: { shape: "square" },
@@ -570,58 +707,21 @@ export default function VisualizationPage() {
                           );
                         });
 
-                        return seriesList;
+                        return list;
                       })()}
                       options={{
-                        chart: {
-                          toolbar: { show: false },
-                          zoom: { enabled: false }
-                        },
-                        legend: {
-                          position: "top"
-                        },
+                        chart: { toolbar: { show: false }, zoom: { enabled: false } },
+                        legend: { position: "top" },
                         xaxis: {
-                          categories:
-                            coffeeConsumption.teams[0]?.series.map((d: any) => d.cups) || [],
+                          categories: coffeeConsumption.teams[0]?.series.map((d: any) => d.cups) || [],
                           title: { text: "커피 섭취량 (잔/일)" }
                         },
                         yaxis: [
-                          {
-                            title: { text: "버그 수 / 회의 불참" }
-                          },
-                          {
-                            opposite: true,
-                            title: { text: "생산성 / 사기" }
-                          }
+                          { title: { text: "버그 수 / 회의 불참" } },
+                          { opposite: true, title: { text: "생산성 / 사기" } }
                         ],
                         stroke: { curve: "smooth" },
-                        markers: { size: 5 },
-                        tooltip: {
-                          shared: false,
-                          intersect: true,
-                          custom: function ({ series, seriesIndex, dataPointIndex, w }: any) {
-                            const seriesName = w.config.series[seriesIndex].name;
-                            const teamName = seriesName.split(" - ")[0];
-                            const metric = seriesName.split(" - ")[1];
-
-                            const team = coffeeConsumption.teams.find(
-                              (t: any) => t.team === teamName
-                            );
-
-                            if (!team) return "";
-
-                            const point = team.series[dataPointIndex];
-
-                            return `
-                  <div style="padding:8px; font-size:12px;">
-                    <b>${teamName}</b><br/>
-                    커피: ${point.cups} 잔<br/>
-                    버그 수: ${point.bugs}<br/>
-                    생산성: ${point.productivity}
-                  </div>
-                `;
-                          }
-                        }
+                        markers: { size: 5 }
                       }}
                     />
                   ) : (
@@ -630,14 +730,29 @@ export default function VisualizationPage() {
                 </div>
               </div>
 
-              {/* 오른쪽 차트 */}
+
+              {/* 오른쪽 차트 - 간식 영향 멀티라인 차트 */}
               <div className="col-12 col-lg-6">
-                {/* 간식 영향 멀티라인 차트 모달*/}
                 <h6 className="fw-bold mb-2">부서별 간식 영향 차트</h6>
-                <div
-                  style={{ height: 500 }}
-                  className="d-flex align-items-center justify-content-center border rounded mb-4"
-                >
+
+                <div className="d-flex flex-wrap gap-3 mb-2">
+                  {snackImpact.departments.map((dept: any, idx: number) => (
+                    <div key={idx} className="d-flex align-items-center gap-1">
+                      <input
+                        type="color"
+                        value={multilineColors.snack[idx]}
+                        onChange={(e) => {
+                          const arr = [...multilineColors.snack];
+                          arr[idx] = e.target.value;
+                          setMultilineColors({ ...multilineColors, snack: arr });
+                        }}
+                      />
+                      <label style={{ fontSize: 12 }}> {dept.name}</label>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ height: 500 }} className="d-flex align-items-center justify-content-center border rounded mb-4">
                   {loading ? (
                     <span className="text-muted">로딩 중...</span>
                   ) : snackImpact.departments?.length > 0 ? (
@@ -645,13 +760,12 @@ export default function VisualizationPage() {
                       type="line"
                       height={480}
                       series={(() => {
-                        const colors = ["#008FFB", "#FF4560", "#00E396", "#775DD0"];
-                        const seriesList: any[] = [];
+                        const list: any[] = [];
 
                         snackImpact.departments.forEach((dept: any, index: number) => {
-                          const color = colors[index % colors.length];
+                          const color = multilineColors.snack[index];
 
-                          seriesList.push(
+                          list.push(
                             {
                               name: `${dept.name} - Meetings Missed`,
                               type: "line",
@@ -673,27 +787,18 @@ export default function VisualizationPage() {
                           );
                         });
 
-                        return seriesList;
+                        return list;
                       })()}
                       options={{
-                        chart: {
-                          toolbar: { show: false },
-                          zoom: { enabled: false }
-                        },
+                        chart: { toolbar: { show: false }, zoom: { enabled: false } },
                         legend: { position: "top" },
                         xaxis: {
-                          categories:
-                            snackImpact.departments[0]?.metrics.map((m: any) => m.snacks) || [],
+                          categories: snackImpact.departments[0]?.metrics.map((m: any) => m.snacks) || [],
                           title: { text: "스낵 섭취량 (개/일)" }
                         },
                         yaxis: [
-                          {
-                            title: { text: "회의 불참" }
-                          },
-                          {
-                            opposite: true,
-                            title: { text: "사기 (Morale)" }
-                          }
+                          { title: { text: "회의 불참" } },
+                          { opposite: true, title: { text: "사기 (Morale)" } }
                         ],
                         stroke: { curve: "smooth" },
                         markers: { size: 5 }
@@ -704,9 +809,11 @@ export default function VisualizationPage() {
                   )}
                 </div>
               </div>
+
             </div>
           </Modal.Body>
         </Modal>
+
 
       </div>
     </main>
