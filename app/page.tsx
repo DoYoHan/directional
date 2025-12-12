@@ -52,9 +52,9 @@ export default function Home() {
           <div className="col-12 col-md-6">
             <div className="card shadow-sm h-100">
               <div className="card-body">
-                <h2 className="h4 fw-semibold mb-3">📌 게시판 기능</h2>
+                <h2 className="h4 fw-semibold mb-3">📌 게시판</h2>
                 <p className="text-muted mb-4">
-                  다양한 글을 작성/조회/댓글로 소통할 수 있는 기본 게시판 기능을 제공합니다.
+                  글을 작성/조회/관리할 수 있는 기본 게시판 기능을 제공합니다.
                 </p>
                 <button
                   className="btn btn-primary rounded-pill px-4 py-2"
@@ -70,7 +70,7 @@ export default function Home() {
           <div className="col-12 col-md-6">
             <div className="card shadow-sm h-100">
               <div className="card-body">
-                <h2 className="h4 fw-semibold mb-3">📊 데이터 시각화 기능</h2>
+                <h2 className="h4 fw-semibold mb-3">📊 데이터 시각화</h2>
                 <p className="text-muted mb-4">
                   차트, 그래프, 테이블을 활용하여 데이터를 직관적으로 보여줍니다.
                 </p>
