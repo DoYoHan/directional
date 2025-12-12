@@ -78,7 +78,7 @@ export default function Home() {
                   className="btn btn-success rounded-pill px-4 py-2"
                   onClick={() => {
                     if (!requireLogin()) return;
-                    alert("시각화 이동! (로그인됨)");
+                    router.push("/visualization");
                   }}
                 >
                   시각화 바로가기
